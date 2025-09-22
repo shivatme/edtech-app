@@ -227,7 +227,7 @@ export default function VideoPlayerScreen() {
           <MaterialIcons name="forward-10" size={30} color="white" />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={toggleFullscreen}>
+        <TouchableOpacity onPress={toggleFullscreen} style={styles.controlBtn}>
           <Ionicons name="expand" size={30} color="white" />
         </TouchableOpacity>
 
@@ -294,22 +294,20 @@ const styles = StyleSheet.create({
     height: 320,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
   },
   controls: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginVertical: 15,
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    marginVertical: 12,
   },
   controlBtn: {
     backgroundColor: "rgba(255,255,255,0.1)",
     padding: 12,
-    borderRadius: 35,
-    shadowColor: "#fff",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    elevation: 5,
+    borderRadius: 30,
   },
   timeRow: {
     flexDirection: "row",
@@ -319,28 +317,24 @@ const styles = StyleSheet.create({
   },
   slider: {
     width: width - 40,
-    height: 40,
+    height: 30,
   },
   streamListContainer: {
-    marginTop: 25,
+    marginTop: 20,
     paddingHorizontal: 10,
   },
   streamListTitle: {
     color: "#fff",
     fontSize: 18,
-    marginBottom: 12,
+    marginBottom: 10,
     fontWeight: "700",
   },
   streamItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 18,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     backgroundColor: "#222",
-    borderRadius: 25,
-    marginRight: 12,
-    shadowColor: "#fff",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
+    borderRadius: 20,
+    marginRight: 10,
   },
   streamText: {
     color: "#fff",
