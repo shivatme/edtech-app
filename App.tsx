@@ -7,6 +7,7 @@ import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TabNavigator, { RootTabParamList } from "./src/navigation/TabNavigation";
+import { StatusBar } from "expo-status-bar";
 
 LogBox.ignoreLogs([
   "expo-notifications: Android Push notifications (remote notifications)",
@@ -64,7 +65,13 @@ export default function App() {
     return () => subscription.remove();
   }, []);
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
+      <StatusBar
+        style="light"
+        translucent={true}
+        backgroundColor="transparent"
+      />
+
       <NavigationContainer ref={navigationRef}>
         <TabNavigator />
       </NavigationContainer>
