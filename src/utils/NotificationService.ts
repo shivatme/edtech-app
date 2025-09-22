@@ -48,3 +48,18 @@ export const triggerNotification = async (
 
   return notificationId;
 };
+
+export const triggerVideoNotification = async () => {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Watch a Video",
+      body: "Tap to open stream 1",
+      sound: "default",
+      data: {
+        screen: "VideoPlayerScreen",
+        videoUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      },
+    },
+    trigger: null,
+  });
+};

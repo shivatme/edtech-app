@@ -1,13 +1,21 @@
-import React, { useEffect, useState, useRef } from "react";
-import { View, StyleSheet, ActivityIndicator, Platform } from "react-native";
+import React, { useState, useRef } from "react";
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { WebView } from "react-native-webview";
-import * as Notifications from "expo-notifications";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AppButton from "../components/AppButton";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { triggerNotification } from "../utils/NotificationService";
+import {
+  triggerNotification,
+  triggerVideoNotification,
+} from "../utils/NotificationService";
 import { RootTabParamList } from "../navigation/TabNavigation";
+import { Ionicons } from "@expo/vector-icons";
 
 type WebViewPageNavigationProp = NativeStackNavigationProp<
   RootTabParamList,
@@ -15,7 +23,6 @@ type WebViewPageNavigationProp = NativeStackNavigationProp<
 >;
 
 export default function WebViewScreen() {
-  const navigation = useNavigation<WebViewPageNavigationProp>();
   const [loading, setLoading] = useState(true);
   const webviewRef = useRef<WebView>(null);
 
@@ -36,7 +43,7 @@ export default function WebViewScreen() {
       <View style={styles.webviewContainer}>
         {loading && (
           <View style={styles.loader}>
-            <ActivityIndicator size="large" color="#000" />
+            <ActivityIndicator size="large" color="white" />
           </View>
         )}
 
@@ -46,25 +53,35 @@ export default function WebViewScreen() {
           style={styles.webview}
           onLoadEnd={handleWebViewLoad}
         />
+        <TouchableOpacity style={styles.reloadButton} onPress={reloadWebView}>
+          <Ionicons name="reload" size={18} color="#000000" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.buttonContainer}>
-        <AppButton title="Reload WebView" onPress={reloadWebView} />
+        <View style={styles.buttonContainerRow}>
+          <AppButton
+            title="Notification 1"
+            variant="white"
+            onPress={() =>
+              triggerNotification("This is Notification 1", { delaySeconds: 1 })
+            }
+            style={{ flex: 1 }}
+          />
+          <AppButton
+            title="Notification 2"
+            variant="white"
+            onPress={() =>
+              triggerNotification("This is Notification 2", { delaySeconds: 3 })
+            }
+            style={{ flex: 1 }}
+          />
+        </View>
+
         <AppButton
-          title="Trigger Notification 1"
-          onPress={() =>
-            triggerNotification("This is Notification 1", { delaySeconds: 1 })
-          }
-        />
-        <AppButton
-          title="Trigger Notification 2"
-          onPress={() =>
-            triggerNotification("This is Notification 2", { delaySeconds: 3 })
-          }
-        />
-        <AppButton
-          title="Go to Video Player"
-          onPress={() => navigation.navigate("VideoPlayerScreen")}
+          variant="white"
+          title="Trigger Video Notification"
+          onPress={() => triggerVideoNotification()}
         />
       </View>
     </SafeAreaView>
@@ -72,24 +89,38 @@ export default function WebViewScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#000" },
   webviewContainer: { flex: 1, position: "relative" },
   webview: { flex: 1 },
+  reloadButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "white",
+    padding: 7,
+    borderRadius: 20,
+    zIndex: 1,
+  },
   loader: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "#fff",
+    backgroundColor: "black",
     justifyContent: "center",
     alignItems: "center",
     zIndex: 1,
   },
   buttonContainer: {
-    padding: 10,
-    paddingBottom: 20,
     flexDirection: "column",
-    gap: 10,
+    gap: 5,
+    margin: 5,
+  },
+  buttonContainerRow: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    gap: 5,
   },
 });

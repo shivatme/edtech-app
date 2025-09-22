@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 export type RootTabParamList = {
   WebViewScreen: undefined;
-  VideoPlayerScreen: undefined;
+  VideoPlayerScreen: { videoUrl?: any };
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -97,9 +97,7 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#000000", // dark black background
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: "#1e1e1e",
     paddingVertical: Platform.OS === "ios" ? 20 : 12,
     shadowColor: "#000",
     shadowOpacity: 0.3,
