@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -22,6 +22,8 @@ import Slider from "@react-native-community/slider";
 
 const { width } = Dimensions.get("window");
 
+// MARK: - Video Streams
+// List of video streams that user can switch between
 const videoStreams = [
   {
     id: "1",
@@ -39,15 +41,20 @@ const videoStreams = [
     url: "https://test-streams.mux.dev/tos_ismc/main.m3u8",
   },
 ];
+
+// MARK: - Types
 type VideoPlayerNavigationProp = NativeStackNavigationProp<
   RootTabParamList,
   "VideoPlayerScreen"
 >;
 type VideoPlayerRouteProp = RouteProp<RootTabParamList, "VideoPlayerScreen">;
+
+// MARK: - Component
 export default function VideoPlayerScreen() {
   const navigation = useNavigation<VideoPlayerNavigationProp>();
-
   const route = useRoute<VideoPlayerRouteProp>();
+
+  // MARK: - State
   const [currentStream, setCurrentStream] = useState(
     videoStreams.find((video) => video.url === route?.params?.videoUrl) ||
       videoStreams[0]
@@ -57,8 +64,11 @@ export default function VideoPlayerScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   const isFocused = useIsFocused();
 
+  // MARK: - Player Setup
   const player = useVideoPlayer(currentStream.url, (player) => {
     player.loop = true;
     player.play();
@@ -66,6 +76,9 @@ export default function VideoPlayerScreen() {
     player.volume = isMuted ? 0 : 1;
   });
 
+  const videoRef = useRef<VideoView>(null);
+
+  // MARK: - Control Functions
   const togglePlayPause = () => {
     if (isPlaying) {
       player.pause();
@@ -80,30 +93,42 @@ export default function VideoPlayerScreen() {
     setIsMuted(!isMuted);
   };
 
+  const toggleFullscreen = () => {
+    if (isFullscreen) {
+      videoRef.current?.exitFullscreen();
+    } else {
+      videoRef.current?.enterFullscreen();
+    }
+    setIsFullscreen(!isFullscreen);
+  };
+
   const switchStream = (stream: (typeof videoStreams)[0]) => {
     setCurrentStream(stream);
     setIsPlaying(true);
   };
 
+  // MARK: - Effects
+  // Handle loading, duration, and current time
   useEffect(() => {
     const interval = setInterval(() => {
       if (!player) return;
       const status = player.status;
+
       if (status && status === "readyToPlay") {
         setIsLoading(false);
       }
       if (status && status === "loading") {
         setIsLoading(true);
       }
+
       setDuration(player.duration);
       setCurrentTime(player.currentTime);
     }, 100);
 
-    return () => {
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, [player]);
 
+  // Pause when screen is not focused
   useEffect(() => {
     if (!player) return;
 
@@ -116,6 +141,7 @@ export default function VideoPlayerScreen() {
     }
   }, [isFocused, player]);
 
+  // Switch stream if navigation param changes
   useEffect(() => {
     const stream =
       videoStreams.find((video) => video.url === route?.params?.videoUrl) ||
@@ -128,13 +154,22 @@ export default function VideoPlayerScreen() {
     }
   }, [route?.params?.videoUrl]);
 
+  // MARK: - UI
   return (
     <View style={styles.container}>
+      {/* MARK: Video Player */}
       <View>
         <VideoView
           style={styles.video}
           player={player}
           nativeControls={false}
+          ref={videoRef}
+          fullscreenOptions={{
+            enable: true,
+            orientation: "landscape",
+            autoExitOnRotate: true,
+          }}
+          onFullscreenExit={() => setIsFullscreen(false)}
         />
         {isLoading && (
           <View style={styles.loader}>
@@ -142,22 +177,18 @@ export default function VideoPlayerScreen() {
           </View>
         )}
       </View>
-      {/* Controls */}
+
+      {/* MARK: Time & Progress Slider */}
       <View style={{ alignItems: "center", width: "100%", marginVertical: 10 }}>
-        {/* Time row */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            width: width - 40,
-          }}
-        >
+        {/* Current Time & Duration */}
+        <View style={styles.timeRow}>
           <Text style={{ color: "white" }}>{formatTime(currentTime)}</Text>
           <Text style={{ color: "white" }}>{formatTime(duration)}</Text>
         </View>
 
+        {/* Seek Slider */}
         <Slider
-          style={{ width: width - 40, height: 40 }}
+          style={styles.slider}
           minimumValue={0}
           maximumValue={duration || 0}
           value={currentTime || 0}
@@ -172,6 +203,7 @@ export default function VideoPlayerScreen() {
         />
       </View>
 
+      {/* MARK: Controls */}
       <View style={styles.controls}>
         <TouchableOpacity
           onPress={() => player.seekBy(-10)}
@@ -195,6 +227,10 @@ export default function VideoPlayerScreen() {
           <MaterialIcons name="forward-10" size={30} color="white" />
         </TouchableOpacity>
 
+        <TouchableOpacity onPress={toggleFullscreen}>
+          <Ionicons name="expand" size={30} color="white" />
+        </TouchableOpacity>
+
         <TouchableOpacity onPress={toggleMute} style={styles.controlBtn}>
           <Ionicons
             name={isMuted ? "volume-mute" : "volume-high"}
@@ -204,6 +240,7 @@ export default function VideoPlayerScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* MARK: Stream List */}
       <View style={styles.streamListContainer}>
         <Text style={styles.streamListTitle}>More Streams</Text>
         <FlatList
@@ -235,6 +272,7 @@ export default function VideoPlayerScreen() {
   );
 }
 
+// MARK: - Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -317,6 +355,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// MARK: - Helpers
 const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);

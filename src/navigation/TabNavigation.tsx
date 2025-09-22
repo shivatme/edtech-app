@@ -1,4 +1,3 @@
-// src/navigation/TabNavigator.tsx
 import React from "react";
 import {
   View,

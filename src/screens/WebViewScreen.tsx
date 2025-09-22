@@ -17,17 +17,23 @@ import {
 import { RootTabParamList } from "../navigation/TabNavigation";
 import { Ionicons } from "@expo/vector-icons";
 
+// MARK: - Types
 type WebViewPageNavigationProp = NativeStackNavigationProp<
   RootTabParamList,
   "WebViewScreen"
 >;
 
+// MARK: - Component
 export default function WebViewScreen() {
+  // MARK: State
   const [loading, setLoading] = useState(true);
   const webviewRef = useRef<WebView>(null);
 
+  // MARK: Handlers
   const handleWebViewLoad = () => {
     setLoading(false);
+
+    // Trigger notification after page load
     triggerNotification("Website has finished loading!", {
       title: "Website Load Complete",
     });
@@ -38,9 +44,12 @@ export default function WebViewScreen() {
     webviewRef.current?.reload();
   };
 
+  // MARK: UI
   return (
     <SafeAreaView style={styles.container}>
+      {/* MARK: WebView Container */}
       <View style={styles.webviewContainer}>
+        {/* Loader overlay */}
         {loading && (
           <View style={styles.loader}>
             <ActivityIndicator size="large" color="white" />
@@ -53,11 +62,14 @@ export default function WebViewScreen() {
           style={styles.webview}
           onLoadEnd={handleWebViewLoad}
         />
+
+        {/* Reload button */}
         <TouchableOpacity style={styles.reloadButton} onPress={reloadWebView}>
           <Ionicons name="reload" size={18} color="#000000" />
         </TouchableOpacity>
       </View>
 
+      {/* MARK: Notification Buttons */}
       <View style={styles.buttonContainer}>
         <View style={styles.buttonContainerRow}>
           <AppButton
@@ -88,6 +100,7 @@ export default function WebViewScreen() {
   );
 }
 
+// MARK: - Styles
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
   webviewContainer: { flex: 1, position: "relative" },
